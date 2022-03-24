@@ -1,4 +1,7 @@
-println("\n\n-------------------problem 1---------------------------------\n\n")
+def markProblem(number: Int) {
+   println(s"\n\n------------------- problem $number ---------------------------------\n\n")
+}
+markProblem(1)
 
 def flexibleFizzBuzz(min: Int, max: Int)(callback: String => Unit) = {
    val fizzbuzz = for (i <- Range.inclusive(min, max)) {
@@ -21,7 +24,7 @@ for (i <- Range.inclusive(0,99)) {
    println(output(i))
 }
 
-println("\n\n-------------------problem 2---------------------------------\n\n")
+markProblem(2)
 
 class Msg(val id: Int, val parent: Option[Int], val txt: String)
 
@@ -46,3 +49,27 @@ printMessages(Array(
   new Msg(7, Some(1), "Hey I am a late child of 1"),
   new Msg(8, Some(0), "No kidding I am a child of 0")
 ))
+
+markProblem(3)
+
+def withFileWriter(fileName: String)(doWork: java.io.BufferedWriter => Unit) = {
+   val writer = java.nio.file.Files.newBufferedWriter(java.nio.file.Paths.get(fileName))
+   doWork(writer)
+   writer.close()
+}
+
+def withFileReader(fileName: String)(doWork: java.io.BufferedReader => String):String = {
+  val reader = java.nio.file.Files.newBufferedReader(java.nio.file.Paths.get(fileName))
+  val result = doWork(reader)
+  reader.close()
+  result
+}
+
+withFileWriter("File.txt") { writer => 
+   writer.write("Hello\n"); writer.write("World!")
+}
+
+val result = withFileReader("File.txt") { reader =>
+   reader.readLine() + "\n" + reader.readLine()
+}
+assert(result == "Hello\nWorld!")
