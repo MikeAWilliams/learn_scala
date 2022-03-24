@@ -100,17 +100,15 @@ renderSudokuNonIdeomatic(Array(
    Array(0, 0, 5, 2, 0, 6, 3, 0, 0)
 ))
 
-printSeperatorMessage("render sudoku nonidomatic")
+printSeperatorMessage("render sudoku more idomatic")
 
 def renderSudoku(grid: Array[Array[Int]]) = {
    println("+-------+-------+-------+")
    for (rowIndex <- Range(0,9)) {
-    val row = Range(0, 9).map(grid(rowIndex)(_))
+    val row = Range(0, 9).map(grid(rowIndex)(_)).map(item => if(item == 0) " " else item.toString())
     var line = "| "
     for (column <- Range(0,9)){
-      var value = row(column).toString()
-      if ("0" == value) value = " "
-      line += value + " "
+      line += row(column) + " "
       if ((column + 1) % 3 == 0) line += "| "
     }
     println(line)
