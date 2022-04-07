@@ -92,3 +92,55 @@ println("stringified " + stringify(example4))
 println("simplified " + stringify(simplify(example4)))
 
 markProblem(2)
+
+trait StrParser[T]{ def parse(s: String): T }
+object StrParser{
+    implicit object ParseInt extends StrParser[Int]{
+        def parse(s: String) = s.toInt
+    }
+    implicit object ParseBoolean extends StrParser[Boolean]{
+        def parse(s: String) = s.toBoolean
+    }
+    implicit object ParseDouble extends StrParser[Double]{
+        def parse(s: String) = s.toDouble
+    }
+    // I wanted this to work, but it doesn't for the general case. It doesn't count the nested [] correctly. I need to use a stack or something
+    implicit def ParseSeq[T](implicit p: StrParser[T]) = new StrParser[Seq[T]]{
+        def stripBrackets(s: String): Seq[String] = s match {
+            case s"[$middle]" => stripBrackets(middle)
+            case s"$left,$right" => stripBrackets(left) ++ stripBrackets(right)
+            case other => Seq(other)
+        }
+        def parse(s: String) = {
+            stripBrackets(s).map(p.parse)
+        }
+    }
+}
+def parseFromString[T](s: String)(implicit parser: StrParser[T]) = {
+    parser.parse(s)
+}
+
+var aInt = parseFromString[Int]("77")
+println(aInt.toString())
+var aBool = parseFromString[Boolean]("true")
+println(aBool.toString())
+var aDouble = parseFromString[Double]("7.777")
+println(aDouble.toString())
+
+
+var someBools = parseFromString[Seq[Boolean]]("true,false,true")
+println(someBools.toString())
+var someInts = parseFromString[Seq[Int]]("111,222,333")
+println(someInts.toString())
+var someDoubles = parseFromString[Seq[Double]]("1.11,2.22,3.33")
+println(someDoubles.toString())
+
+var someSquareBools = parseFromString[Seq[Boolean]]("[true,false,true]")
+println(someSquareBools.toString())
+
+//var some3LayerStuff = parseFromString[Seq[(Seq[Int], Seq[Boolean])]]( 
+    //"[[[1],[true]],[[2,3],[false,true]],[[4,5,6],[false,true,false]]]"
+//)
+//println(some3LayerStuff.toString())
+
+markProblem(3)
