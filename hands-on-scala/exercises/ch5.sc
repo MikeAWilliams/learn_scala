@@ -144,3 +144,44 @@ println(someSquareBools.toString())
 //println(some3LayerStuff.toString())
 
 markProblem(3)
+
+trait StringWriter[T]{ def write(element: T): String }
+object StringWriter{
+    implicit object WriteInt extends StringWriter[Int]{
+        def write(element: Int) = element.toString
+    }
+    implicit object WriteBoolean extends StringWriter[Boolean]{
+        def write(element: Boolean) = element.toString
+    }
+    implicit object WriteDouble extends StringWriter[Double]{
+        def write(element: Double) = element.toString
+    }
+    implicit def WriteSequence[T](implicit w: StringWriter[T]) = new StringWriter[Seq[T]]{
+        def write(element: Seq[T]) = element.map(w.write).mkString("[",",","]")
+    }
+    implicit def WriteTuple[T, V](implicit w1: StringWriter[T], w2: StringWriter[V]) =
+        new StringWriter[(T, V)]{
+            def write(t: (T, V)) = {
+                val (left, right) = t
+                "[" + w1.write(left) + "," + w2.write(right) + "]"
+            }
+        }
+}
+def writeToString[T](element: T)(implicit w: StringWriter[T]) = {
+    w.write(element)
+}
+
+println(writeToString(Seq(true, false, true)))
+println(writeToString[Seq[(Seq[Int], Seq[Boolean])]](
+    Seq(
+        (Seq(1), Seq(true)),
+        (Seq(2, 3), Seq(false, true)),
+        (Seq(4, 5, 6), Seq(false, true, false))
+        )
+    ))
+println(writeToString(
+    Seq(
+        (Seq(1), Seq((true, 0.5))),
+        (Seq(2, 3), Seq((false, 1.5), (true, 2.5)))
+    )
+))
