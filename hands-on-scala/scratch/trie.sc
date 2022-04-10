@@ -12,6 +12,7 @@ class Trie() {
     for (c <- s if current.nonEmpty) current = current.get.children.get(c)
     current.exists(_.hasValue)
   }
+  // this method is weird to me. I feel like it is an implementation detail and should be hidden
   def prefixesMatchingString0(s: String): Set[Int] = {
     var current = Option(root)
     val output = Set.newBuilder[Int]
@@ -25,6 +26,7 @@ class Trie() {
     if (current.exists(_.hasValue)) output += s.length
     output.result()
   }
+  // this returns a set because prefixMatchingString0 returns a set and maping over a set yields a set
   def prefixesMatchingString(s: String): Set[String] = {
     prefixesMatchingString0(s).map(s.substring(0, _))
   }
@@ -34,9 +36,13 @@ class Trie() {
     if (current.isEmpty) Set()
     else {
       val output = Set.newBuilder[String]
+      // notice that List is an imutable linked list
+      // lists share tails so as we prepend to the front, all the words share most of the list
       def recurse(current: Node, path: List[Char]): Unit = {
         if (current.hasValue) output += (s + path.reverse.mkString)
-        for ((c, n) <- current.children) recurse(n, c :: path)
+        // :: returns a new list with the new element at the front and shareing all the other elementes.
+        // need to reverse because we are prepending all the time
+        for ((c, n) <- current.children) recurse(n, c :: path) 
       }
       recurse(current.get, Nil) // recursive walk
       output.result()
