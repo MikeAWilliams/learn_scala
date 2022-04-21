@@ -36,11 +36,11 @@ println(binarySearchGeneric(Array(1, 3, 7, 9, 13), 2))
 
 markProblem(3)
 
-def nodeConstructSnipit(index: Int, inputs:Seq[String]) {
-    val isWord = inputs.exists(_.length == index)
-    val filteredInputs = inputs.filter(_.length > index)
-    println(s"$index $isWord, $filteredInputs")
-    for((childChar, childInputs) <- filteredInputs.groupBy(_.charAt(index))) {
+def nodeConstructSnipit(inWordIndex: Int, inputs:Seq[String]) {
+    val isWord = inputs.exists(_.length == inWordIndex)
+    val filteredInputs = inputs.filter(_.length > inWordIndex)
+    println(s"$inWordIndex $isWord, $filteredInputs")
+    for((childChar, childInputs) <- filteredInputs.groupBy(_.charAt(inWordIndex))) {
         println(s"  $childChar $childInputs")
     }
 }
@@ -55,13 +55,16 @@ nodeConstructSnipit(4, input)
 markProblem(4)
 
 class ImmutableTrie(inputs: Seq[String]) {
-  class Node(val index: Int, val inputs: Seq[String]) {
-    val isWord = inputs.exists(_.length == index)
+  // inWordIndex is the index into a given word. The character there is the character on the given node
+  class Node(val inWordIndex: Int, val inputs: Seq[String]) {
+    //isWord is a sneeky trick. If any of the words are the same lenght as the inWordIndex then we know this node is the end of a word
+    val isWord = inputs.exists(_.length == inWordIndex)
+    // children gets the value from the yeild in the for. it is a map of character to node. the char is the value for the node.
     val children = {
-      val filteredInputs = inputs.filter(_.length > index)
-      println(s"$index $inputs $filteredInputs")
-      for((childChar, childInputs) <- filteredInputs.groupBy(_.charAt(index))) 
-        yield (childChar, new Node(index + 1, childInputs))
+      val filteredInputs = inputs.filter(_.length > inWordIndex)
+      println(s"$inWordIndex $inputs $filteredInputs")
+      for((childChar, childInputs) <- filteredInputs.groupBy(_.charAt(inWordIndex))) 
+        yield (childChar, new Node(inWordIndex + 1, childInputs))
     }
   }
 
@@ -71,7 +74,7 @@ class ImmutableTrie(inputs: Seq[String]) {
       def recursivePrint(current: Node, indent: String): Unit = {
           for((char, node) <- current.children) {
               println(s"$indent$char")
-              recursivePrint(node, indent+"_")
+              recursivePrint(node, indent+"|")
           }
       }
       recursivePrint(root,"")
@@ -80,8 +83,10 @@ class ImmutableTrie(inputs: Seq[String]) {
   def contains(searchString: String): Boolean = {
     var current = Option(root)
     for (c <- searchString if current.nonEmpty) current = current.get.children.get(c)
+    //exits will return false if the option is empty. If not empty it will apply the predicate, in this case meaning the end of a word
     current.exists(_.isWord)
   }
+
   def prefixesMatchingString0(searchString: String): Set[Int] = {
     var current = Option(root)
     val output = Set.newBuilder[Int]
@@ -92,9 +97,11 @@ class ImmutableTrie(inputs: Seq[String]) {
     if (current.exists(_.isWord)) output += searchString.length
     output.result()
   }
+
   def prefixesMatchingString(searchString: String): Set[String] = {
     prefixesMatchingString0(searchString).map(searchString.substring(0, _))
   }
+
   def stringsMatchingPrefix(searchString: String): Set[String] = {
     var current = Option(root)
     for (c <- searchString if current.nonEmpty) current = current.get.children.get(c) // initial walk
@@ -110,6 +117,7 @@ class ImmutableTrie(inputs: Seq[String]) {
     }
   }
 }
+
 val t = new ImmutableTrie(input)
 t.print()
 println(t.contains("mango"))
@@ -117,7 +125,8 @@ println(t.contains("mang"))
 println(t.contains("man"))
 println(t.contains("mandarin"))
 println(t.contains("mandarine"))
-println(t.prefixesMatchingString("mangosteen"))
+val mangoSteenValue = t.prefixesMatchingString("mangosteen")
+println(s"mangosteen $mangoSteenValue")
 println(t.stringsMatchingPrefix("man"))
 println(t.stringsMatchingPrefix("ma"))
 println(t.stringsMatchingPrefix("map"))
