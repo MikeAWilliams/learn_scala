@@ -164,12 +164,18 @@ class ImmutableTrieFromScratch(inputs: Seq[String]) {
     current.exists(aNode => aNode.isWord)
   }
 
-  def prefixesMatchingString0(searchString: String): Set[Int] = {
-    Set(1,2,3)
+  def indiciesInSearchThatAreWords(searchString: String): Set[Int] = {
+    var current = Option(root)
+    val output = Set.newBuilder[Int]
+    for((searchChar, index) <- searchString.zipWithIndex if current.nonEmpty) {
+      if (current.get.isWord) output += index
+      current = current.get.children.get(searchChar)
+    }
+    output.result()
   }
 
   def prefixesMatchingString(searchString: String): Set[String] = {
-    prefixesMatchingString0(searchString).map(searchString.substring(0,_))
+    indiciesInSearchThatAreWords(searchString).map(searchString.substring(0,_))
   }
 
   def stringsMatchingPrefix(searchString: String): Set[String] = {
