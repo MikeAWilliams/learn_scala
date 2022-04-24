@@ -212,3 +212,57 @@ println(t2.wordsWithPrefix("ma"))
 println(t2.wordsWithPrefix("map"))
 println(t2.wordsWithPrefix("mand"))
 println(t2.wordsWithPrefix("mando"))
+
+markProblem(6)
+
+def searchPathsBFS[T](start: T, graph: Map[T, Seq[T]]): Map[T, List[T]] = { 
+  val seen = collection.mutable.Map(start -> List(start))
+  val queue = collection.mutable.ArrayDeque(start -> List(start))
+  while (queue.nonEmpty) {
+    val (current, path) = queue.removeHead()
+    println(s"BFS visiting $current")
+    for (next <- graph(current) if !seen.contains(next)) {
+      val newPath = next :: path
+      seen(next) = newPath
+      queue.append((next, newPath))
+    }
+  }
+  seen.toMap
+}
+
+def searchPathsDFS[T](start: T, graph: Map[T, Seq[T]]): Map[T, List[T]] = { 
+  val seen = collection.mutable.Map(start -> List(start))
+  val lengths = collection.mutable.Map(start -> 0)
+  val queue = collection.mutable.ArrayDeque((start, List(start), 0))
+  while (queue.nonEmpty) {
+    val (current, path, currentLength) = queue.removeHead()
+    println(s"DFS visiting $current")
+    for (next <- graph(current) 
+      if !seen.contains(next) || !lengths.get(next).exists(_ <= currentLength + 1))
+    {
+      val newPath = next :: path
+      seen(next) = newPath
+      queue.prepend((next, newPath, currentLength + 1))
+      // using append results in BFS because it puts the new node, which is a child of the current node on the end
+      // we need it on the beginning so that it will be next
+      //queue.append((next, newPath, currentLength + 1))
+    }
+  }
+  seen.toMap
+}
+
+def shortestPath[T](start: T, dest: T, graph: Map[T, Seq[T]]): Seq[T] = {
+  //val shortestReversedPaths = searchPathsBFS(start, graph)
+  val shortestReversedPaths = searchPathsDFS(start, graph)
+  shortestReversedPaths(dest).reverse
+}
+
+val exampleGraph = Map(
+    "a" -> Seq("d", "b"),
+    "b" -> Seq("c"),
+    "c" -> Seq("e"),
+    "d" -> Seq("e"),
+    "e" -> Seq())
+
+println(shortestPath( start = "a", dest = "e", graph = exampleGraph))
+println(shortestPath( start = "a", dest = "c", graph = exampleGraph))
