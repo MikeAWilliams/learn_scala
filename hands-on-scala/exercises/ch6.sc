@@ -132,3 +132,47 @@ println(t.stringsMatchingPrefix("ma"))
 println(t.stringsMatchingPrefix("map"))
 println(t.stringsMatchingPrefix("mand"))
 println(t.stringsMatchingPrefix("mando"))
+
+markProblem(5)
+
+class ImmutableTrieFromScratch(inputs: Seq[String]) {
+  // inWordIndex is the index into a given word. The character there is the character on the given node
+  class Node(val inWordIndex: Int, val inputs: Seq[String]) {
+  }
+
+  val root = new Node(0, inputs)
+
+  def print(): Unit = {
+  }
+
+  def contains(searchString: String): Boolean = {
+    false
+  }
+
+  def prefixesMatchingString0(searchString: String): Set[Int] = {
+    Set(1,2,3)
+  }
+
+  def prefixesMatchingString(searchString: String): Set[String] = {
+    Set("a")
+  }
+
+  def stringsMatchingPrefix(searchString: String): Set[String] = {
+    Set("a")
+  } 
+}
+
+val t2 = new ImmutableTrieFromScratch(input)
+t2.print()
+println(t2.contains("mango"))
+println(t2.contains("mang"))
+println(t2.contains("man"))
+println(t2.contains("mandarin"))
+println(t2.contains("mandarine"))
+val mangoSteenValue2 = t2.prefixesMatchingString("mangosteen")
+println(s"mangosteen $mangoSteenValue2")
+println(t2.stringsMatchingPrefix("man"))
+println(t2.stringsMatchingPrefix("ma"))
+println(t2.stringsMatchingPrefix("map"))
+println(t2.stringsMatchingPrefix("mand"))
+println(t2.stringsMatchingPrefix("mando"))
