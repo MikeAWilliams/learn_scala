@@ -174,11 +174,11 @@ class ImmutableTrieFromScratch(inputs: Seq[String]) {
     output.result()
   }
 
-  def prefixesMatchingString(searchString: String): Set[String] = {
+  def wordsMatchingPrefixOfSearchString(searchString: String): Set[String] = {
     indiciesInSearchThatAreWords(searchString).map(searchString.substring(0,_))
   }
 
-  def stringsMatchingPrefix(searchString: String): Set[String] = {
+  def wordsWithPrefix(searchString: String): Set[String] = {
     var current = Option(root)
     for(searchChar <- searchString if current.nonEmpty) current = current.get.children.get(searchChar)
       if (current.isEmpty) Set()
@@ -205,10 +205,10 @@ println(t2.contains("mang"))
 println(t2.contains("man"))
 println(t2.contains("mandarin"))
 println(t2.contains("mandarine"))
-val mangoSteenValue2 = t2.prefixesMatchingString("mangosteen")
+val mangoSteenValue2 = t2.wordsMatchingPrefixOfSearchString("mangosteen")
 println(s"mangosteen $mangoSteenValue2")
-println(t2.stringsMatchingPrefix("man"))
-println(t2.stringsMatchingPrefix("ma"))
-println(t2.stringsMatchingPrefix("map"))
-println(t2.stringsMatchingPrefix("mand"))
-println(t2.stringsMatchingPrefix("mando"))
+println(t2.wordsWithPrefix("man"))
+println(t2.wordsWithPrefix("ma"))
+println(t2.wordsWithPrefix("map"))
+println(t2.wordsWithPrefix("mand"))
+println(t2.wordsWithPrefix("mando"))
