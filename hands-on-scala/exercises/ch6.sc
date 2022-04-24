@@ -169,11 +169,26 @@ class ImmutableTrieFromScratch(inputs: Seq[String]) {
   }
 
   def prefixesMatchingString(searchString: String): Set[String] = {
-    Set("a")
+    prefixesMatchingString0(searchString).map(searchString.substring(0,_))
   }
 
   def stringsMatchingPrefix(searchString: String): Set[String] = {
-    Set("a")
+    var current = Option(root)
+    for(searchChar <- searchString if current.nonEmpty) current = current.get.children.get(searchChar)
+      if (current.isEmpty) Set()
+      else {
+        val output = Set.newBuilder[String]
+        def recurse(current: Node, path: List[Char]): Unit = {
+          if(current.isWord) output += (searchString + path.reverse.mkString)
+          else {
+            for ((charAtNode, nodeAtChar) <- current.children){
+              recurse(nodeAtChar, charAtNode :: path)
+            }
+          }
+        }
+        recurse(current.get, Nil) // recursive walk
+        output.result()
+      }
   } 
 }
 
