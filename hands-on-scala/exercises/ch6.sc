@@ -119,7 +119,7 @@ class ImmutableTrie(inputs: Seq[String]) {
 }
 
 val t = new ImmutableTrie(input)
-t.print()
+//t.print()
 println(t.contains("mango"))
 println(t.contains("mang"))
 println(t.contains("man"))
@@ -138,15 +138,30 @@ markProblem(5)
 class ImmutableTrieFromScratch(inputs: Seq[String]) {
   // inWordIndex is the index into a given word. The character there is the character on the given node
   class Node(val inWordIndex: Int, val inputs: Seq[String]) {
+    val isWord = inputs.exists(inWordIndex == _.length)
+    val children = {
+      val validChildren = inputs.filter(_.length > inWordIndex)
+      for ((rootChar, childInputs) <- validChildren.groupBy(_.charAt(inWordIndex)))
+        yield (rootChar, new Node(inWordIndex + 1, childInputs))
+    }
   }
 
   val root = new Node(0, inputs)
 
   def print(): Unit = {
+    def recursivePrinter(current: Node, indent: String): Unit = {
+      for((charAtNode, nodeAtChar) <- current.children){
+        println(indent + charAtNode)
+        recursivePrinter(nodeAtChar, indent+"|")
+      }
+    }
+    recursivePrinter(root, "")
   }
 
   def contains(searchString: String): Boolean = {
-    false
+    var current = Option(root)
+    for (letter <- searchString if current.nonEmpty) current = current.get.children.get(letter)
+    current.exists(aNode => aNode.isWord)
   }
 
   def prefixesMatchingString0(searchString: String): Set[Int] = {
